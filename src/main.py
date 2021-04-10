@@ -64,11 +64,21 @@ def argment_parser() -> argparse.ArgumentParser:
     parser_add.set_defaults(handler=command_add)
     parser_add.add_argument('patterns', nargs='+', type=pathlib.Path, default="-")
 
+    parser_add = commands.add_parser('as')
+    parser_add.set_defaults(handler=test)
+    parser_add.add_argument('patterns', nargs='+')
+
     parser_commit = commands.add_parser('commit')
     parser_commit.add_argument('-m', metavar='msg', help='commit message')
     parser_commit.set_defaults(handler=command_commit)
 
     return parser
+
+def test(args):
+    print('@', sys._getframe().f_code.co_name)
+    for pattern in args.patterns:
+        for path in pathlib.Path().glob(pattern):
+            print(path)
 
 
 def main():
