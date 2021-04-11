@@ -1,4 +1,4 @@
-# Pico Git
+# Minimal Git
 This is a repository for me to learn inside Git.
 
 ## Description

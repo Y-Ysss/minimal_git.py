@@ -28,6 +28,9 @@ def command_add(args):
     print('@', sys._getframe().f_code.co_name)
     index.add(args.patterns)
 
+def command_reset(args):
+    print('@', sys._getframe().f_code.co_name)
+    index.reset_add(args.patterns)
 
 def command_commit(args):
     print('@', sys._getframe().f_code.co_name)
@@ -62,11 +65,11 @@ def argment_parser() -> argparse.ArgumentParser:
     parser_add = commands.add_parser('add')
     parser_add.add_argument('-A', '--all', action='store_true', help='all files')
     parser_add.set_defaults(handler=command_add)
-    parser_add.add_argument('patterns', nargs='+', type=pathlib.Path, default="-")
+    parser_add.add_argument('patterns', nargs='+', default="-")
 
-    parser_add = commands.add_parser('as')
-    parser_add.set_defaults(handler=test)
-    parser_add.add_argument('patterns', nargs='+')
+    parser_reset = commands.add_parser('reset')
+    parser_reset.set_defaults(handler=command_reset)
+    parser_reset.add_argument('patterns', nargs='*', default="-")
 
     parser_commit = commands.add_parser('commit')
     parser_commit.add_argument('-m', metavar='msg', help='commit message')
