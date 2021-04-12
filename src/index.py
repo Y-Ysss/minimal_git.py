@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, Generator, List, Tuple, Union
 from binascii import unhexlify
 from common import is_windows
-from file_system import git_dir
+from file_system import git_dir, glob
 
 
 # @dataclass
@@ -98,7 +98,7 @@ class IndexObject():
     #     self.entries = [index_entry(file) for file in files]
 
     def update(self, file: Path):
-        self.entries[file] = IndexEntry().from_file(file)
+        self.entries[file.name] = IndexEntry().from_file(file)
         self.entry_num = len(self.entries)
 
     def binary_data(self) -> bytes:
@@ -127,14 +127,10 @@ def update_ref(ref: str, value: str):
     with open(git_dir().joinpath(ref), 'w') as f:
         f.write(f'ref: {value}')
 
-def glob(patterns:List[str]) -> Generator:
-    for pattern in patterns:
-        for path in Path().glob(pattern):
-            yield path
 
 def add(patterns: List[str]) -> None:
-    # obj = IndexObject()
-    obj, hash = parse_index()
+    
+    obj = parse_index()[0] if git_dir().joinpath('index').exists() else IndexObject()
     for path in glob(patterns):
         # path = Path(file)
         if not path.exists():
@@ -188,7 +184,7 @@ def parse_index() -> Tuple[IndexObject, str]:
                     entry_size += 1
 
             f.read((8 - (entry_size % 8)) or 8)
-            entries[fname] = IndexEntry(ct, ctns, mt, mtns, dev, ino, mode, uid, gid,
+            entries[fname.decode()] = IndexEntry(ct, ctns, mt, mtns, dev, ino, mode, uid, gid,
                                          size, hash.hex(), asmflg, extflg, rsvflg, skpflg, addflg,
                                          fname.decode("utf-8", "replace"))
 

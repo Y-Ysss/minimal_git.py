@@ -4,35 +4,49 @@ from data_objects import GIT_DIR
 import os
 import re
 from pathlib import Path
-from typing import Generator
+from typing import Generator, List
 
 from data_objects import GIT_DIR
 from gitignore_parser import parse_gitignore
 
 
-def iter_pathes() -> Generator:
+def glob(patterns: List[str]) -> Generator:
+    if Path('.gitignore').exists:
+        matches = parse_gitignore('.gitignore')
 
-    def is_git_ignored():
-        if Path('.gitignore').exists:
-            return parse_gitignore('.gitignore')
-        else:
-            return False
-
-    def is_ignored(path: str) -> bool:
-        if GIT_DIR in path.split(os.path.sep) or is_git_ignored(path):
-            return True
-
-    for root, dirnames, filenames in os.walk('.'):
-        for filename in filenames:
-            path = os.path.relpath(os.path.join(root, filename))
-            if is_ignored(path) or not os.path.isfile(path):
+    for pattern in patterns:
+        for path in Path().rglob(pattern):
+            if path.is_dir() or is_in_git_dir(path) or matches(path) if callable(matches) else False:
                 continue
             yield path
-        for dirname in dirnames:
-            path = os.path.relpath(os.path.join(root, dirname))
-            if is_ignored(path):
-                continue
-            yield path
+
+
+def is_in_git_dir(path: Path) -> bool:
+    return GIT_DIR in path.parts
+
+# def iter_pathes() -> Generator:
+
+#     def is_git_ignored():
+#         if Path('.gitignore').exists:
+#             return parse_gitignore('.gitignore')
+#         else:
+#             return False
+
+#     def is_ignored(path: str) -> bool:
+#         if GIT_DIR in path.split(os.path.sep) or is_git_ignored(path):
+#             return True
+
+#     for root, dirnames, filenames in os.walk('.'):
+#         for filename in filenames:
+#             path = os.path.relpath(os.path.join(root, filename))
+#             if is_ignored(path) or not os.path.isfile(path):
+#                 continue
+#             yield path
+#         for dirname in dirnames:
+#             path = os.path.relpath(os.path.join(root, dirname))
+#             if is_ignored(path):
+#                 continue
+#             yield path
 
 
 def get_path(path=None) -> Path:
@@ -71,4 +85,8 @@ def make_base_dirs() -> None:
 
 
 if __name__ == '__main__':
-    print(git_dir())
+    # print(git_dir())
+    import os
+    os.chdir('workspace')
+    for p in glob(['*']):
+        print(p)

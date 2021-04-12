@@ -23,6 +23,8 @@ def command_init(args):
     file_system.make_base_dirs()
     index.update_ref('HEAD', f'refs/heads/{data_objects.MAIN_BRANCH}')
 
+def command_status(args):
+    print('@', sys._getframe().f_code.co_name)
 
 def command_add(args):
     print('@', sys._getframe().f_code.co_name)
